@@ -21,18 +21,16 @@ def create_database():
         )
     ''')
 
-    # Create Employee table
+    # Staff table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Employee (
-            employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            position TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            phone TEXT,
-            hire_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        CREATE TABLE IF NOT EXISTS staff (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT DEFAULT 'staff'
         )
     ''')
+
 
     # Create Manager table, which references Employee as the manager
     cursor.execute('''
@@ -45,14 +43,14 @@ def create_database():
         )
     ''')
 
-    # Create Movie table to store information about the movies being shown
+    # Movies table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Movie (
-            movie_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        CREATE TABLE IF NOT EXISTS movies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            genre TEXT NOT NULL,
-            duration INTEGER NOT NULL,  -- in minutes
-            rating TEXT NOT NULL  -- e.g., PG, PG-13, R
+            genre TEXT,
+            duration INTEGER,
+            release_date TEXT
         )
     ''')
 
@@ -67,16 +65,28 @@ def create_database():
         )
     ''')
 
-    # Create Booking table for customer ticket bookings
+    # Bookings table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Booking (
-            booking_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            customer_id INTEGER NOT NULL,
-            screening_id INTEGER NOT NULL,
-            seats_booked INTEGER NOT NULL,
-            booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE,
-            FOREIGN KEY (screening_id) REFERENCES Screening(screening_id) ON DELETE CASCADE
+        CREATE TABLE IF NOT EXISTS bookings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            movie_id INTEGER,
+            customer_name TEXT,
+            seat_number TEXT,
+            booking_time TEXT,
+            FOREIGN KEY (movie_id) REFERENCES movies(id)
+        )
+    ''')
+
+
+    # Create Payment table to track payment information
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Payment (
+            payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            booking_id INTEGER NOT NULL,
+            amount REAL NOT NULL,
+            payment_method TEXT NOT NULL,  -- e.g., Card, Cash, Online
+            payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (booking_id) REFERENCES Booking(booking_id) ON DELETE CASCADE
         )
     ''')
 
@@ -94,25 +104,15 @@ def create_database():
         )
     ''')
 
-    # Create Food table to store available food items in the cinema
+    # Create User table for account registration
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Food (
-            food_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            price REAL NOT NULL
-        )
-    ''')
-
-    # Create FoodOrder table to track food orders placed by customers
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS FoodOrder (
-            order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            customer_id INTEGER NOT NULL,
-            food_id INTEGER NOT NULL,
-            quantity INTEGER NOT NULL,
-            order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE,
-            FOREIGN KEY (food_id) REFERENCES Food(food_id) ON DELETE CASCADE
+        CREATE TABLE IF NOT EXISTS User (
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            customer_id INTEGER,
+            registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
         )
     ''')
 
@@ -120,8 +120,15 @@ def create_database():
     conn.commit()
     conn.close()
 
+def add_default_admin():
+    conn = sqlite3.connect("cinema_system.db")  # Use the correct database name
+    cursor = conn.cursor()
+    cursor.execute("INSERT OR IGNORE INTO staff (username, password, role) VALUES (?, ?, ?)", 
+                   ('admin', 'admin123', 'admin'))
+    conn.commit()
+    conn.close()
+
+add_default_admin()
 if __name__ == '__main__':
     create_database()
     print("Cinema database and tables created successfully.")
-
-
