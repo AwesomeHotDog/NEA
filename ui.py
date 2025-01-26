@@ -141,6 +141,14 @@ def manage_movies():
             genre_var.set("")
             duration_var.set("")
             release_date_var.set("")
+            conn = sqlite3.connect("cinema_system.db")
+            cursor = conn.cursor()
+            cursor.execute(
+            "INSERT INTO movies (title, genre, duration, release_date) VALUES (?, ?, ?, ?)",
+            (title, genre, duration, release_date),
+        )
+            conn.commit()
+            conn.close()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to add movie: {e}")
 
@@ -373,7 +381,7 @@ def open_customer_dashboard():
     def view_movies():
         conn = sqlite3.connect('cinema_system.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Movie")
+        cursor.execute("SELECT * FROM movies")
         movies = cursor.fetchall()
         conn.close()
 
