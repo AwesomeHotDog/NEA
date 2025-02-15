@@ -98,3 +98,21 @@ def show_movies():
 
     for movie in movies:
         tk.Label(movies_window, text=f"{movie[0]}. {movie[1]} - {movie[2]} ({movie[3]} min) - {movie[4]}").pack(pady=5)
+        
+def filter_movies(genre=None, min_duration=0, max_duration=300):
+    """Fetch movies based on user-defined filters."""
+    conn = sqlite3.connect("cinema_system.db")
+    cursor = conn.cursor()
+    
+    query = "SELECT id, title, genre, duration, release_date FROM Movies WHERE duration BETWEEN ? AND ?"
+    params = (min_duration, max_duration)
+    
+    if genre:
+        query += " AND genre = ?"
+        params += (genre,)
+    
+    cursor.execute(query, params)
+    movies = cursor.fetchall()
+    conn.close()
+    
+    return movies  # Return filtered list to display

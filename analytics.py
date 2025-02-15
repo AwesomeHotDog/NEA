@@ -1,5 +1,6 @@
 import sqlite3
 import tkinter as tk
+import matplotlib.pyplot as plt
 
 def show_analytics():
     """Displays booking and review analytics."""
@@ -25,3 +26,20 @@ def show_analytics():
     tk.Label(analytics_window, text=f"Total Bookings: {total_bookings}").pack(pady=10)
     tk.Label(analytics_window, text=f"Total Reviews: {total_reviews}").pack(pady=10)
     tk.Label(analytics_window, text=f"Most Reviewed Movie: {top_movie_title}").pack(pady=10)
+
+def generate_sales_report():
+    """Generates a bar chart of movie bookings."""
+    conn = sqlite3.connect("cinema_system.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT movie_id, COUNT(*) FROM Bookings GROUP BY movie_id")
+    data = cursor.fetchall()
+    conn.close()
+
+    movies = [f"Movie {row[0]}" for row in data]
+    bookings = [row[1] for row in data]
+
+    plt.bar(movies, bookings)
+    plt.xlabel("Movies")
+    plt.ylabel("Number of Bookings")
+    plt.title("Movie Booking Report")
+    plt.show()
