@@ -1,75 +1,86 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
 import sqlite3
 import bcrypt
-import tkinter as tk
-from tkinter import messagebox
 import dashboard
 
-def show_user_login():
-    """Displays the user login screen."""
-    login_window = tk.Toplevel()
-    login_window.title("User Login")
-    login_window.geometry("400x300")
+class LoginApp:
+    def __init__(self, root, is_staff=False):
+        self.root = root
+        self.root.title("Staff Login" if is_staff else "User Login")
+        self.root.geometry("400x400")
+        self.root.configure(bg="#2A2A2A")  # ✅ Dark gray background
 
-    tk.Label(login_window, text="Username:").pack(pady=5)
-    username_entry = tk.Entry(login_window)
-    username_entry.pack(pady=5)
+        # Apply modern styles
+        self.style = ttk.Style()
+        self.style.configure("TLabel", foreground="white", background="#2A2A2A", font=("Helvetica", 12))
+        self.style.configure("TButton", font=("Segoe UI", 11, "bold"), padding=6)
+        self.style.configure("TEntry", padding=5)
 
-    tk.Label(login_window, text="Password:").pack(pady=5)
-    password_entry = tk.Entry(login_window, show="*")
-    password_entry.pack(pady=5)
+        ttk.Label(root, text="Login", font=("Montserrat", 18, "bold"), foreground="white", background="#2A2A2A").pack(pady=10)
 
-    def login():
-        username = username_entry.get()
-        password = password_entry.get()
+        ttk.Label(root, text="Username:").pack(pady=5)
+        self.username_entry = ttk.Entry(root, width=30)
+        self.username_entry.pack(pady=5)
 
-        conn = sqlite3.connect("cinema_system.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT password_hash FROM User WHERE username=?", (username,))
-        result = cursor.fetchone()
-        conn.close()
+        ttk.Label(root, text="Password:").pack(pady=5)
+        self.password_entry = ttk.Entry(root, width=30, show="*")
+        self.password_entry.pack(pady=5)
 
-        if result and bcrypt.checkpw(password.encode('utf-8'), result[0].encode('utf-8')):
-            messagebox.showinfo("Success", "Login successful!")
-            login_window.destroy()
-            dashboard.user_dashboard(username)
-        else:
-            messagebox.showerror("Error", "Invalid username or password")
+        # ✅ Ensure the buttons are packed correctly
+        self.login_button = ttk.Button(root, text="Login", command=self.login)
+        self.login_button.pack(pady=10)
 
-    tk.Button(login_window, text="Login", command=login).pack(pady=10)
+        # ✅ Show Register button ONLY if it's a User login
+        if not is_staff:
+            self.register_button = ttk.Button(root, text="Register", command=self.open_register)
+            self.register_button.pack(pady=5)
 
-def show_staff_login():
-    """Displays the staff login screen."""
-    login_window = tk.Toplevel()
-    login_window.title("Staff Login")
-    login_window.geometry("400x300")
+    def open_register(self):
+        """Opens the registration window for users."""
+        from register import RegisterApp  
+        register_root = tk.Toplevel(self.root)
+        RegisterApp(register_root)
 
-    tk.Label(login_window, text="Username:").pack(pady=5)
-    username_entry = tk.Entry(login_window)
-    username_entry.pack(pady=5)
-
-    tk.Label(login_window, text="Password:").pack(pady=5)
-    password_entry = tk.Entry(login_window, show="*")
-    password_entry.pack(pady=5)
-
-    def login():
-        username = username_entry.get()
-        password = password_entry.get()
+    def login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
 
         conn = sqlite3.connect("cinema_system.db")
         cursor = conn.cursor()
+
+        # ✅ First, check if the user is a staff member
         cursor.execute("SELECT password_hash, role FROM Staff WHERE username=?", (username,))
         result = cursor.fetchone()
-        conn.close()
 
         if result:
             stored_hash, role = result
-            if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8')):
-                messagebox.showinfo("Success", f"Welcome {username} ({role})!")
-                login_window.destroy()
-                dashboard.staff_dashboard(username)
-            else:
-                messagebox.showerror("Error", "Invalid username or password")
+            if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8') if isinstance(stored_hash, str) else stored_hash):
+                messagebox.showinfo("Success", "Login successful!")
+                self.root.destroy()
+                if role == "admin":
+                    dashboard.staff_dashboard(username)
+                else:
+                    dashboard.user_dashboard(username)
+                return  # ✅ Stops execution after successful login
+        
+        # ✅ If not found in Staff, check in the User table
+        cursor.execute("SELECT password_hash FROM User WHERE username=?", (username,))
+        result = cursor.fetchone()
+    
+        conn.close()
+
+        if result:
+            stored_hash = result[0]
+            if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8') if isinstance(stored_hash, str) else stored_hash):
+                messagebox.showinfo("Success", "Login successful!")
+                self.root.destroy()
+                dashboard.user_dashboard(username)  # ✅ Correctly load user dashboard
+                return  # ✅ Ensure function ends after successful login
         else:
             messagebox.showerror("Error", "Invalid username or password")
 
-    tk.Button(login_window, text="Login", command=login).pack(pady=10)
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = LoginApp(root)
+    root.mainloop()

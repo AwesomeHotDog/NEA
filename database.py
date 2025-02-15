@@ -83,8 +83,7 @@ def add_admin_user(cursor):
     if count == 0:  # If no staff exist, create an admin user
         username = "admin"
         password = "admin123"
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())  
         cursor.execute("INSERT INTO Staff (username, password_hash, role) VALUES (?, ?, ?)",
                        (username, hashed_password, 'admin'))
         print("✅ Default Admin Created: Username = admin, Password = admin123")
