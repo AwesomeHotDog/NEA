@@ -1,34 +1,29 @@
 import tkinter as tk
-import reviews
 import booking
-import movie_management
-
-
+import reviews
+import staff_management  # For managing users & bookings
+import movie_management  # For movie management
+import analytics  # For reports & analytics
 
 def staff_dashboard(username):
-    """GUI for staff dashboard with more management options."""
+    """GUI for staff dashboard with management options."""
     root = tk.Toplevel()
     root.title("Staff Dashboard")
     root.geometry("500x500")
 
     tk.Label(root, text=f"Welcome, {username} (Staff)", font=("Arial", 16)).pack(pady=20)
 
-    # Movie Management
+    # Buttons for staff features
     tk.Button(root, text="Manage Movies", width=25, command=movie_management.show_movie_management).pack(pady=5)
+    tk.Button(root, text="Manage Users", width=25, command=staff_management.show_user_management).pack(pady=5)
+    tk.Button(root, text="Manage Bookings", width=25, command=staff_management.show_booking_management).pack(pady=5)
+    tk.Button(root, text="View Analytics", width=25, command=analytics.generate_sales_report).pack(pady=5)
 
-    # Booking Management
-    tk.Button(root, text="View Bookings", width=25, command=booking_management.show_bookings).pack(pady=5)
-
-    # User Management
-    tk.Button(root, text="Manage Users", width=25, command=user_management.show_user_management).pack(pady=5)
-
-    # Analytics
-    tk.Button(root, text="View Analytics", width=25, command=analytics.show_analytics).pack(pady=5)
-
-    # Logout
+    # Logout Button
     tk.Button(root, text="Logout", width=25, command=root.destroy).pack(pady=20)
 
     root.mainloop()
+
 
 def user_dashboard(username):
     """User dashboard with multiple features."""

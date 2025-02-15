@@ -3,27 +3,34 @@ import tkinter as tk
 from tkinter import messagebox
 
 def show_movie_management():
-    """GUI for staff to add and delete movies."""
+    """Displays a window where staff can manage movies."""
     movie_window = tk.Toplevel()
     movie_window.title("Manage Movies")
-    movie_window.geometry("500x600")
+    movie_window.geometry("500x500")
 
-    tk.Label(movie_window, text="Movie Title:").pack(pady=5)
-    title_entry = tk.Entry(movie_window)
-    title_entry.pack(pady=5)
+    tk.Label(movie_window, text="Movie List", font=("Arial", 14)).pack(pady=10)
 
-    tk.Label(movie_window, text="Genre:").pack(pady=5)
-    genre_entry = tk.Entry(movie_window)
-    genre_entry.pack(pady=5)
+    movie_listbox = tk.Listbox(movie_window, width=50)
+    movie_listbox.pack(pady=5)
 
-    tk.Label(movie_window, text="Duration (minutes):").pack(pady=5)
-    duration_entry = tk.Entry(movie_window)
-    duration_entry.pack(pady=5)
+    def refresh_movies():
+        """Refresh the movie list."""
+        movie_listbox.delete(0, tk.END)
+        conn = sqlite3.connect("cinema_system.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, title FROM Movies")  # ✅ Make sure this query is correct
+        movies = cursor.fetchall()
+        conn.close()
+        if not movies:
+            movie_listbox.insert(tk.END, "No movies available.")  # ✅ Show a message if empty
+        else:
+            for movie in movies:
+                movie_listbox.insert(tk.END, f"{movie[0]} - {movie[1]}")
 
-    tk.Label(movie_window, text="Release Date (YYYY-MM-DD):").pack(pady=5)
-    release_date_entry = tk.Entry(movie_window)
-    release_date_entry.pack(pady=5)
+    refresh_movies()  # ✅ Populate the list when window opens
 
+    movie_window.mainloop()
+    
     def add_movie():
         """Inserts a new movie into the database."""
         title = title_entry.get()
@@ -98,7 +105,7 @@ def show_movies():
 
     for movie in movies:
         tk.Label(movies_window, text=f"{movie[0]}. {movie[1]} - {movie[2]} ({movie[3]} min) - {movie[4]}").pack(pady=5)
-        
+
 def filter_movies(genre=None, min_duration=0, max_duration=300):
     """Fetch movies based on user-defined filters."""
     conn = sqlite3.connect("cinema_system.db")

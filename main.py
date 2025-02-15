@@ -1,11 +1,13 @@
 import tkinter as tk
-from database import initialize_database
+from database import initialize_database 
+from database import populate_movies
 import login
 import register
 
 def main():
     """Main function to initialize the database and launch the application."""
     initialize_database()  # Ensure database and tables exist
+    populate_movies()
 
     root = tk.Tk()
     root.title("Cinema Booking System")
