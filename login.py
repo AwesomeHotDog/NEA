@@ -49,7 +49,7 @@ class LoginApp:
         conn = sqlite3.connect("cinema_system.db")
         cursor = conn.cursor()
 
-        # ✅ First, check if the user is a staff member
+        # First, check if the user is a staff member
         cursor.execute("SELECT password_hash, role FROM Staff WHERE username=?", (username,))
         result = cursor.fetchone()
 
@@ -62,23 +62,23 @@ class LoginApp:
                     dashboard.staff_dashboard(username)
                 else:
                     dashboard.user_dashboard(username)
-                return  # ✅ Stops execution after successful login
+                return
         
-        # ✅ If not found in Staff, check in the User table
-        cursor.execute("SELECT password_hash FROM User WHERE username=?", (username,))
+        # If not found in Staff, check in the User table
+        cursor.execute("SELECT password FROM User WHERE username=?", (username,))
         result = cursor.fetchone()
     
         conn.close()
 
         if result:
-            stored_hash = result[0]
-            if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8') if isinstance(stored_hash, str) else stored_hash):
+            stored_password = result[0]
+            if password == stored_password:  # Plain text comparison for regular users
                 messagebox.showinfo("Success", "Login successful!")
                 self.root.destroy()
-                dashboard.user_dashboard(username)  # ✅ Correctly load user dashboard
-                return  # ✅ Ensure function ends after successful login
-        else:
-            messagebox.showerror("Error", "Invalid username or password")
+                dashboard.user_dashboard(username)
+                return
+        
+        messagebox.showerror("Error", "Invalid username or password")
 
 if __name__ == "__main__":
     root = tk.Tk()

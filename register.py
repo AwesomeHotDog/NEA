@@ -31,7 +31,7 @@ class RegisterApp:
         ttk.Button(root, text="Register", command=self.register_user).pack(pady=10)
 
     def register_user(self):
-        """Handles user registration with validation and password hashing."""
+        """Handles user registration with validation."""
         username = self.username_entry.get()
         password = self.password_entry.get()
         confirm_password = self.confirm_password_entry.get()
@@ -45,13 +45,11 @@ class RegisterApp:
             messagebox.showerror("Error", "Passwords do not match")
             return
 
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
         conn = sqlite3.connect("cinema_system.db")
         cursor = conn.cursor()
         try:
-            cursor.execute("INSERT INTO User (username, password_hash, email) VALUES (?, ?, ?)",
-                           (username, hashed_password, email))
+            cursor.execute("INSERT INTO User (username, password, email, is_staff) VALUES (?, ?, ?, ?)",
+                           (username, password, email, 0))
             conn.commit()
             messagebox.showinfo("Success", "Registration successful!")
             self.root.destroy()
