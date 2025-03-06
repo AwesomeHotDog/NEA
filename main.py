@@ -1,14 +1,11 @@
 import tkinter as tk
-from database import initialize_database 
-from database import populate_movies
+from database import initialize_database, populate_movies
 import login
-import register
-import tkinter as tk
-import login
+from omdb_api import fetch_movie_details  # Import OMDb API function
 
 def open_login():
     initialize_database()  # Ensure database and tables exist
-    populate_movies()  # Populate the database with movies
+    populate_movies()  # Fetch movie data from API
     """Opens the login window for users."""
     login_root = tk.Toplevel()
     login_root.title("User Login")
@@ -25,7 +22,7 @@ def main():
     root = tk.Tk()
     root.title("Cinema System - Main Menu")
     root.geometry("400x350")
-    root.configure(bg="#252525")  # ✅ Dark theme
+    root.configure(bg="#252525")  # Dark theme
 
     tk.Label(root, text="Welcome to the Cinema System", font=("Montserrat", 14, "bold"), fg="white", bg="#252525").pack(pady=15)
 
