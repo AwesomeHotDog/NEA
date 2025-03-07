@@ -9,7 +9,7 @@ class LoginApp:
         self.root = root
         self.root.title("Staff Login" if is_staff else "User Login")
         self.root.geometry("400x400")
-        self.root.configure(bg="#2A2A2A")  # ✅ Dark gray background
+        self.root.configure(bg="#2A2A2A")  # Dark gray background
 
         # Apply modern styles
         self.style = ttk.Style()
@@ -27,11 +27,11 @@ class LoginApp:
         self.password_entry = ttk.Entry(root, width=30, show="*")
         self.password_entry.pack(pady=5)
 
-        # ✅ Ensure the buttons are packed correctly
+        # Ensure the buttons are packed correctly
         self.login_button = ttk.Button(root, text="Login", command=self.login)
         self.login_button.pack(pady=10)
 
-        # ✅ Show Register button ONLY if it's a User login
+        # Show Register button ONLY if it's a User login
         if not is_staff:
             self.register_button = ttk.Button(root, text="Register", command=self.open_register)
             self.register_button.pack(pady=5)
