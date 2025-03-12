@@ -45,7 +45,7 @@ def main():
     title_frame.pack(pady=(0, 30))
 
     tk.Label(title_frame, 
-            text="🎬 Cinema System",
+            text="Cinema System",
             font=("Montserrat", 24, "bold"),
             fg="#E0E0E0",
             bg="#1A1A1A").pack()
@@ -71,7 +71,7 @@ def main():
 
     # Staff Login button with icon
     tk.Button(button_frame,
-              text="👤 Staff Login",
+              text="Staff Login",
               command=open_staff_login,
               bg="#2980B9",
               fg="white",
@@ -81,7 +81,7 @@ def main():
 
     # User Login button with icon
     tk.Button(button_frame,
-              text="🔑 User Login",
+              text="User Login",
               command=open_user_login,
               bg="#27AE60",
               fg="white",
@@ -91,7 +91,7 @@ def main():
 
     # Guest button with icon
     tk.Button(button_frame,
-              text="👋 Continue as Guest",
+              text="Continue as Guest",
               command=show_guest_dashboard,
               bg="#7F8C8D",
               fg="white",
